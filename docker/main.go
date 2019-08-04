@@ -52,9 +52,13 @@ func convert(srcDir string, dstDir string) error {
 		if filepath.Ext(src) == ".html" {
 			rel, err := filepath.Rel(srcDir, src)
 			if err != nil {
-				return fmt.Errorf("ERROR: Failed to relativize source file path: %v\n", err)
+				return fmt.Errorf("Failed to relativize source file path: %v", err)
 			}
 			dst := kuhnuri.WithExt(filepath.Join(dstDir, rel), ".pdf")
+			dir := filepath.Dir(dst)
+			if err :=kuhnuri.MkDirs(dir); err != nil {
+				return err
+			}
 			fmt.Printf("INFO: Convert %s %s\n", src, dst)
 
 			cmd := exec.Command("weasyprint",
@@ -65,7 +69,7 @@ func convert(srcDir string, dstDir string) error {
 			cmd.Stderr = os.Stderr
 
 			if err := cmd.Run(); err != nil {
-				return fmt.Errorf("ERROR: Failed to convert: %v", err)
+				return fmt.Errorf("Failed to convert: %v", err)
 			}
 		}
 		return nil
